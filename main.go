@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"time"
 
@@ -51,11 +52,11 @@ func main() {
 
 func getDatabaseURL() string {
 	// If DATABASE_URL is set, use it directly
-	if url := os.Getenv("DATABASE_URL"); url != "" {
-		return url
+	if dbURL := os.Getenv("DATABASE_URL"); dbURL != "" {
+		return dbURL
 	}
 
-	// Otherwise, build from individual components
+	// Otherwise, build from individual components with proper URL encoding
 	host := getEnv("DB_HOST", "localhost")
 	port := getEnv("DB_PORT", "5432")
 	user := getEnv("DB_USER", "postgres")
@@ -63,9 +64,13 @@ func getDatabaseURL() string {
 	dbname := getEnv("DB_NAME", "postgres")
 	sslmode := getEnv("DB_SSLMODE", "disable")
 
+	// URL encode the username and password to handle special characters
+	encodedUser := url.QueryEscape(user)
+	encodedPassword := url.QueryEscape(password)
+
 	return fmt.Sprintf(
 		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
-		user, password, host, port, dbname, sslmode,
+		encodedUser, encodedPassword, host, port, dbname, sslmode,
 	)
 }
 
