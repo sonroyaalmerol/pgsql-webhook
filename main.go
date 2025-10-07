@@ -28,13 +28,16 @@ type Event struct {
 }
 
 func main() {
+	// Build database URL from individual params or use DATABASE_URL directly
+	databaseURL := getDatabaseURL()
+
 	config := Config{
-		DatabaseURL: getEnv("DATABASE_URL", "postgres://authentik:password@localhost:5432/authentik?sslmode=disable"),
+		DatabaseURL: databaseURL,
 		WebhookURL:  getEnv("WEBHOOK_URL", "http://localhost:1880/authentik-webhook"),
 		Channel:     getEnv("CHANNEL", "authentik_changes"),
 	}
 
-	log.Printf("Starting Authentik Webhook Bridge")
+	log.Printf("Starting pgsql-webhook")
 	log.Printf("Webhook URL: %s", config.WebhookURL)
 	log.Printf("Channel: %s", config.Channel)
 
@@ -44,6 +47,26 @@ func main() {
 			time.Sleep(5 * time.Second)
 		}
 	}
+}
+
+func getDatabaseURL() string {
+	// If DATABASE_URL is set, use it directly
+	if url := os.Getenv("DATABASE_URL"); url != "" {
+		return url
+	}
+
+	// Otherwise, build from individual components
+	host := getEnv("DB_HOST", "localhost")
+	port := getEnv("DB_PORT", "5432")
+	user := getEnv("DB_USER", "postgres")
+	password := getEnv("DB_PASSWORD", "password")
+	dbname := getEnv("DB_NAME", "postgres")
+	sslmode := getEnv("DB_SSLMODE", "disable")
+
+	return fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		user, password, host, port, dbname, sslmode,
+	)
 }
 
 func listen(config Config) error {

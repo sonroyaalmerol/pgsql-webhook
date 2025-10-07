@@ -44,9 +44,36 @@ services:
 
 All configuration is done via environment variables:
 
+### Database Connection
+
+You can configure the database connection in two ways:
+
+**Option 1: Single DATABASE_URL**
+
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | `postgres://authentik:password@localhost:5432/authentik?sslmode=disable` |
+| `DATABASE_URL` | Full PostgreSQL connection string | `postgres://postgres:password@localhost:5432/postgres?sslmode=disable` |
+
+Example:
+```bash
+DATABASE_URL="postgres://user:pass@host:5432/dbname?sslmode=disable"
+```
+
+**Option 2: Individual Parameters** (used if `DATABASE_URL` is not set)
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `DB_HOST` | PostgreSQL host | `localhost` |
+| `DB_PORT` | PostgreSQL port | `5432` |
+| `DB_USER` | Database user | `postgres` |
+| `DB_PASSWORD` | Database password | `password` |
+| `DB_NAME` | Database name | `postgres` |
+| `DB_SSLMODE` | SSL mode (disable/require/verify-ca/verify-full) | `disable` |
+
+### Webhook Configuration
+
+| Variable | Description | Default |
+|----------|-------------|---------|
 | `WEBHOOK_URL` | HTTP endpoint to send webhooks to | `http://localhost:1880/authentik-webhook` |
 | `CHANNEL` | PostgreSQL NOTIFY channel to listen on | `authentik_changes` |
 
